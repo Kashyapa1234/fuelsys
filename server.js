@@ -133,6 +133,24 @@ app.put('/api/quotas/:id', async (req, res) => {
   }
 });
 
+// DELETE a quota record
+app.delete('/api/quotas/:id', async (req, res) => {
+  if (!requireDb(res)) return;
+  try {
+    if (!ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid quota ID.' });
+    }
+    const result = await db.collection('quotas').deleteOne({ _id: new ObjectId(req.params.id) });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Quota record not found.' });
+    }
+    res.json({ message: 'Quota deleted successfully.' });
+  } catch (err) {
+    console.error('DELETE /api/quotas/:id failed:', err);
+    res.status(500).json({ message: 'Server error while deleting quota.' });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // ORDERS
 // ---------------------------------------------------------------------------
